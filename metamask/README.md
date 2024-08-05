@@ -439,3 +439,27 @@ export function MetamaskConnector() {
   );
 }
 ```
+
+#### 5. Metamask 로그인 구현
+
+- contexts/WalletContext.tsx
+
+```tsx title contexts/WalletContext.tsx
+const siweSign = async () => {
+  try {
+    if (!selectedWalletRdns) return;
+    const provider = wallets[selectedWalletRdns].provider;
+    const domain = window.location.host;
+    const from = selectedAccountByWalletRdns[selectedWalletRdns];
+    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
+    const msg = `0x${Buffer.from(siweMessage, "utf8").toString("hex")}`;
+    const sign = await provider.request({
+      method: "personal_sign",
+      params: [msg, from],
+    });
+    console.log(sign);
+  } catch (err) {
+    console.error(err);
+  }
+};
+```

@@ -18,6 +18,7 @@ export function MetamaskConnector() {
     selectedAccount,
     selectedWallet,
     disconnectWallet,
+    siweSign,
   } = useWalletContext();
 
   console.log(selectedWallet);
@@ -67,7 +68,11 @@ export function MetamaskConnector() {
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full" disabled={!selectedAccount}>
+        <Button
+          className="w-full"
+          disabled={!selectedAccount}
+          onClick={siweSign}
+        >
           로그인
         </Button>
       </CardFooter>

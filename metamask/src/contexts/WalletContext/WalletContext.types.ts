@@ -14,4 +14,5 @@ export interface IWalletContext {
   connectWallet: (walletUuid: string) => Promise<void>; // Function to connect wallets.
   disconnectWallet: () => void; // Function to disconnect wallets.
   clearError: () => void;
+  siweSign: () => Promise<void>;
 }
