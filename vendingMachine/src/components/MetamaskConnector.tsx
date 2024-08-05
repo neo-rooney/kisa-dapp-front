@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { useWalletContext } from "@/contexts/WalletContext/WalletContext";
 import { formatAddress } from "@/lib/utils";
+import { PATHS } from "@/routes/paths";
+import { useNavigate } from "react-router-dom";
 
 export function MetamaskConnector() {
   const {
@@ -21,7 +23,17 @@ export function MetamaskConnector() {
     siweSign,
   } = useWalletContext();
 
-  console.log(selectedWallet);
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      await siweSign();
+      navigate(PATHS.VENDING);
+    } catch (e) {
+      console.error("Error at handleLogin", e);
+    }
+  };
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -71,7 +83,7 @@ export function MetamaskConnector() {
         <Button
           className="w-full"
           disabled={!selectedAccount}
-          onClick={siweSign}
+          onClick={handleLogin}
         >
           로그인
         </Button>

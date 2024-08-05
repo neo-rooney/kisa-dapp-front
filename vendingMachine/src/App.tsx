@@ -1,13 +1,11 @@
-import { MetamaskConnector } from "@/components/MetamaskConnector";
-import styles from "./App.module.css";
 import { WalletContextProvider } from "@/contexts/WalletContext/WalletContext";
+import { RouterProvider } from "react-router-dom";
+import { router } from "@/routes";
 
 function App() {
   return (
     <WalletContextProvider>
-      <main className={styles.container}>
-        <MetamaskConnector />
-      </main>
+      <RouterProvider router={router} />
     </WalletContextProvider>
   );
 }
