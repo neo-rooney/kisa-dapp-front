@@ -47,3 +47,34 @@ interface WalletError {
   code?: string;
   message?: string;
 }
+
+// Transaction log structure
+interface TransactionLog {
+  address: string;
+  blockHash: string;
+  blockNumber: string;
+  data: string;
+  logIndex: string;
+  removed: boolean;
+  topics: string[];
+  transactionHash: string;
+  transactionIndex: string;
+}
+
+// Transaction receipt structure
+interface TransactionReceipt {
+  blockHash: string;
+  blockNumber: string;
+  contractAddress: string | null;
+  cumulativeGasUsed: string;
+  effectiveGasPrice: string;
+  from: string;
+  gasUsed: string;
+  logs: TransactionLog[];
+  logsBloom: string;
+  status: string; // "0x1" for success, "0x0" for failure
+  to: string;
+  transactionHash: string;
+  transactionIndex: string;
+  type: string; // e.g., "0x2" for EIP-1559 transactions
+}
