@@ -1,32 +1,3 @@
-#### 1. Vite 기반 React 프로젝트 세팅
-
-- [참고 문서](https://vitejs.dev/guide/)
-
-```shell
-npm create vite@latest metamask -- --template react-ts
-
-cd metamask
-
-npm install
-
-npm run dev
-```
-
-![image](https://github.com/user-attachments/assets/1cbe2b96-c716-4674-8f94-2300f718ba01)
-
-#### 2. shadcn/ui 설치
-
-- [공식 문서 ](https://ui.shadcn.com/docs/installation/vite)
-
-#### 3. 지갑 연결 화면 퍼블리싱
-
-```
-npx shadcn-ui@latest add card avatar button
-```
-
-- components/MetamaskConnector
-
-```tsx title=components/MetamaskConnector
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,6 +56,3 @@ export function MetamaskConnector() {
     </Card>
   );
 }
-```
-
-![image](https://github.com/user-attachments/assets/6e82a12b-a73f-481a-8b95-e32b1e004582)

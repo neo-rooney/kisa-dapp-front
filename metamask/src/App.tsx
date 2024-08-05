@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { MetamaskConnector } from "@/components/MetamaskConnector";
+import styles from "./App.module.css";
 
 function App() {
   return (
-    <>
-      <Button>버튼</Button>
-    </>
+    <main className={styles.container}>
+      <MetamaskConnector />
+    </main>
   );
 }
 
