@@ -15,8 +15,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { THistory } from "@/pages/AdminPage";
 
-export const HistoryList = () => {
+export const HistoryList = ({
+  history,
+  onClickItem,
+}: {
+  history: THistory[];
+  onClickItem: (item: THistory) => void;
+}) => {
   return (
     <Tabs defaultValue="week">
       <TabsContent value="week">
@@ -38,20 +45,25 @@ export const HistoryList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    0xC0208CcFE3c9cC58D73100649b62cF49601440a0
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">0</TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Badge className="text-xs" variant="default">
-                      발급 완료
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    2023-06-23
-                  </TableCell>
-                </TableRow>
+                {history.map((item: THistory) => (
+                  <TableRow
+                    key={item.transactionHash}
+                    onClick={() => onClickItem(item)}
+                  >
+                    <TableCell>{item.to}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {item.tokenId}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Badge className="text-xs" variant="default">
+                        {item.status === "granted" ? "발급" : "회수"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {new Date(item.date).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>

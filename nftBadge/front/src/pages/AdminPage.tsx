@@ -19,10 +19,26 @@ import { ethers } from "ethers";
 import { NftArtifacts } from "@/abi/Nft";
 import { NFT_CA } from "@/constants";
 
+export type THistory = {
+  from: string;
+  to: string;
+  tokenId: string;
+  status: "retrieved" | "granted";
+  gasUsed: string;
+  gasPrice: string;
+  date: string;
+  transactionHash: string;
+  transactionFee: string;
+  blockNumber: string;
+};
+
 const AdminPage = () => {
   const { selectedWallet, selectedAccount } = useWalletContext();
   const [contract, setContract] = useState<ethers.Contract>();
   const [receiver, setReceiver] = useState("");
+  const [history, setHistory] = useState<THistory[]>([]);
+  const [historyDetail, setHistoryDetail] = useState<THistory | null>(null);
+
   useEffect(() => {
     async function load() {
       try {
@@ -41,6 +57,7 @@ const AdminPage = () => {
         if (!isAdmin) {
           alert("관리자가 아닙니다!");
         }
+        await fetchLog(NftContract);
       } catch (e) {
         console.error(e);
       }
@@ -56,6 +73,70 @@ const AdminPage = () => {
     const receipt = await tx.wait();
     console.log("Transaction mined:", receipt);
     console.log("NFT granted to", receiver);
+  };
+
+  const fetchLog = async (contract: ethers.Contract) => {
+    if (!selectedWallet) return;
+    const provider = new ethers.BrowserProvider(selectedWallet?.provider);
+    const filter = contract.filters.Transfer(null, null); // 모든 `from` 및 `to` 주소에 대해 필터링
+    const currentBlock = await provider.getBlockNumber();
+
+    const logs = await contract.queryFilter(filter, 6400000, currentBlock);
+
+    const parsedLogs = await Promise.all(
+      logs.map(async (log) => {
+        const eventLog = log as ethers.EventLog;
+        const txReceipt = await provider.getTransactionReceipt(
+          eventLog.transactionHash
+        );
+        const tx = await provider.getTransaction(eventLog.transactionHash);
+
+        if (!tx) {
+          throw new Error(
+            `Transaction not found for hash: ${eventLog.transactionHash}`
+          );
+        }
+
+        const blockNumber = tx.blockNumber;
+        if (blockNumber === null) {
+          throw new Error(
+            `Block number not found for transaction: ${eventLog.transactionHash}`
+          );
+        }
+
+        const block = await provider.getBlock(blockNumber);
+        if (!block) {
+          throw new Error(`Block not found for number: ${blockNumber}`);
+        }
+
+        const status: "retrieved" | "granted" =
+          eventLog.args?.[1] === ethers.ZeroAddress ? "retrieved" : "granted";
+
+        const transactionFee =
+          txReceipt?.gasUsed && tx?.gasPrice
+            ? ethers.formatEther(txReceipt.gasUsed * tx.gasPrice)
+            : "0";
+
+        return {
+          from: eventLog.args?.[0] as string,
+          to: eventLog.args?.[1] as string,
+          tokenId: eventLog.args?.[2]?.toString() as string,
+          status,
+          gasUsed: txReceipt?.gasUsed.toString() ?? "0",
+          gasPrice: tx?.gasPrice
+            ? ethers.formatUnits(tx.gasPrice, "gwei")
+            : "0",
+          transactionFee,
+          date: block.timestamp
+            ? new Date(block.timestamp * 1000).toISOString()
+            : "Unknown date",
+          transactionHash: eventLog.transactionHash,
+          blockNumber: blockNumber.toString(),
+        };
+      })
+    );
+
+    setHistory(parsedLogs);
   };
 
   return (
@@ -91,11 +172,12 @@ const AdminPage = () => {
                 </CardFooter>
               </Card>
             </div>
-            <HistoryList />
+            <HistoryList
+              history={history}
+              onClickItem={(item: THistory) => setHistoryDetail(item)}
+            />
           </div>
-          <div>
-            <HistoryDetail />
-          </div>
+          <div>{historyDetail && <HistoryDetail data={historyDetail} />}</div>
         </main>
       </div>
     </div>
