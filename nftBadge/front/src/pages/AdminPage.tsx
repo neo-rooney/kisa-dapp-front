@@ -13,8 +13,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HistoryList } from "@/components/HistoryList";
 import { HistoryDetail } from "@/components/HistoryDetail";
+import { useWalletContext } from "@/contexts/WalletContext/WalletContext";
+import { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { NftArtifacts } from "@/abi/Nft";
+import { NFT_CA } from "@/constants";
 
 const AdminPage = () => {
+  const { selectedWallet, selectedAccount } = useWalletContext();
+  const [contract, setContract] = useState<ethers.Contract>();
+  const [receiver, setReceiver] = useState("");
+  useEffect(() => {
+    async function load() {
+      try {
+        if (!selectedWallet) return;
+
+        const provider = new ethers.BrowserProvider(selectedWallet?.provider);
+        const signer = await provider.getSigner();
+
+        const abi = NftArtifacts.abi;
+
+        const NftContract = new ethers.Contract(NFT_CA, abi, signer);
+        setContract(NftContract);
+
+        const adminRole = await NftContract.DEFAULT_ADMIN_ROLE();
+        const isAdmin = await NftContract.hasRole(adminRole, selectedAccount);
+        if (!isAdmin) {
+          alert("관리자가 아닙니다!");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    load();
+  }, [selectedWallet]);
+
+  const grantNftBadge = async () => {
+    const provider = selectedWallet?.provider;
+    if (!provider || !contract) return;
+    const tx = await contract.mint(receiver);
+
+    const receipt = await tx.wait();
+    console.log("Transaction mined:", receipt);
+    console.log("NFT granted to", receiver);
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -37,16 +80,14 @@ const AdminPage = () => {
                         id="address"
                         placeholder="0x0000000000000000000000000"
                         required
+                        value={receiver}
+                        onChange={(e) => setReceiver(e.target.value)}
                       />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="nftId">NFT ID</Label>
-                      <Input id="nftId" placeholder="0" required />
                     </div>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button>부여하기</Button>
+                  <Button onClick={grantNftBadge}>부여하기</Button>
                 </CardFooter>
               </Card>
             </div>
