@@ -13,7 +13,13 @@ import { Separator } from "@/components/ui/separator";
 import { THistory } from "@/pages/AdminPage";
 import { formatAddress } from "@/lib/utils";
 
-export const HistoryDetail = ({ data }: { data: THistory }) => {
+export const HistoryDetail = ({
+  data,
+  onClickBurn,
+}: {
+  data: THistory;
+  onClickBurn: (tokenId: string) => void;
+}) => {
   return (
     <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
       <CardHeader className="flex flex-row items-start bg-muted/50">
@@ -34,7 +40,12 @@ export const HistoryDetail = ({ data }: { data: THistory }) => {
           ).toLocaleString()}`}</CardDescription>
         </div>
         <div className="ml-auto flex items-center gap-1">
-          <Button size="sm" variant="outline" className="h-8 gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1"
+            onClick={() => onClickBurn(data.tokenId)}
+          >
             <Trash2 className="h-3.5 w-3.5" />
             <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
               회수

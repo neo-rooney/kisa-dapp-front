@@ -139,6 +139,20 @@ const AdminPage = () => {
     setHistory(parsedLogs);
   };
 
+  const burnNftBadge = async (tokenId: string) => {
+    try {
+      if (!contract) return;
+      const tx = await contract.adminBurn(tokenId);
+      console.log("Transaction Hash:", tx.hash);
+
+      // 트랜잭션이 확인될 때까지 기다립니다.
+      const receipt = await tx.wait();
+      console.log("Transaction was mined in block", receipt.blockNumber);
+    } catch (error) {
+      console.error("Error burning token:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -177,7 +191,11 @@ const AdminPage = () => {
               onClickItem={(item: THistory) => setHistoryDetail(item)}
             />
           </div>
-          <div>{historyDetail && <HistoryDetail data={historyDetail} />}</div>
+          <div>
+            {historyDetail && (
+              <HistoryDetail data={historyDetail} onClickBurn={burnNftBadge} />
+            )}
+          </div>
         </main>
       </div>
     </div>
